@@ -1,34 +1,37 @@
-name: Release Weekly
-
-on:
-  workflow_dispatch:
-
 jobs:
   release:
     name: Build and Release
-    runs-on: ubuntu-latest
+    runs-on: self-hosted
     steps:
-    - uses: actions/checkout@v4
+    - continue-on-error: true
+      uses: actions/checkout@v4
       with:
         fetch-depth: 0
         persist-credentials: false
-    - name: Setup Java
+    - continue-on-error: true
+      name: Setup Java
       uses: actions/setup-java@v4
       with:
-        distribution: 'temurin'
+        distribution: temurin
         java-version: 11
-    - name: Set up Chalk
+    - continue-on-error: true
+      name: Set up Chalk
       uses: crashappsec/setup-chalk-action@main
       with:
         password: ${{ secrets.CHALK_PASSWORD }}
-        public_key: ${{ secrets.CHALK_PUBLIC_KEY }}
         private_key: ${{ secrets.CHALK_PRIVATE_KEY }}
-    - name: Build and Release
+        public_key: ${{ secrets.CHALK_PUBLIC_KEY }}
+    - continue-on-error: true
       env:
         ZAPBOT_TOKEN: ${{ secrets.ZAPBOT_TOKEN }}
-        ZAP_RELEASE: 1
+        ZAP_CHALK: 1
         ZAP_JAVA_VERSION: 11
+        ZAP_RELEASE: 1
         ZAP_WEEKLY_ADDONS_NO_TEST: ${{ vars.ZAP_WEEKLY_ADDONS_NO_TEST }}
         ZAP_WEEKLY_QUIET: ${{ vars.ZAP_WEEKLY_QUIET }}
-        ZAP_CHALK: 1
+      name: Build and Release
       run: ./gradlew "-Dorg.gradle.jvmargs=-Xmx2g -XX:MaxMetaspaceSize=512m" :zap:createWeeklyRelease
+name: Release Weekly
+on:
+  repository_dispatch:
+    types: trigger-ga___release-weekly.yml

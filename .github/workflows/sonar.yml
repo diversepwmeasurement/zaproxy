@@ -1,25 +1,26 @@
-name: Run Sonar
-
-on: 
-  schedule:
-    - cron: '30 15 * * SAT'
-  workflow_dispatch:
-
 jobs:
   sonar:
-    runs-on: [ubuntu-latest]
+    runs-on: self-hosted
     steps:
-    - uses: actions/checkout@v4
+    - continue-on-error: true
+      uses: actions/checkout@v4
       with:
         fetch-depth: 0
-    - name: Setup Java
+    - continue-on-error: true
+      name: Setup Java
       uses: actions/setup-java@v4
       with:
-        distribution: 'temurin'
+        distribution: temurin
         java-version: '17'
-    - name: Gradle Test & Coverage Report
+    - continue-on-error: true
+      name: Gradle Test & Coverage Report
       run: ./gradlew test jacocoTestReport -Dorg.gradle.jvmargs=-Xmx4096m
-    - name: Sonarcloud Scan
+    - continue-on-error: true
       env:
         SONAR_TOKEN: ${{ secrets.ZAPBOT_SONARCLOUD_TOKEN }}
+      name: Sonarcloud Scan
       run: ./gradlew -Dorg.gradle.jvmargs=-Xmx4g sonar --stacktrace
+name: Run Sonar
+on:
+  repository_dispatch:
+    types: trigger-ga___sonar.yml

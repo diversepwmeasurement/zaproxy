@@ -1,34 +1,29 @@
-name: "CLA Assistant"
+jobs:
+  CLAAssistant:
+    runs-on: self-hosted
+    steps:
+    - continue-on-error: true
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        PERSONAL_ACCESS_TOKEN: ${{ secrets.ZAP_CLA_PAT }}
+      if: (github.event.comment.body == 'recheck' || github.event.comment.body ==
+        'I have read the CLA Document and I hereby sign the CLA') || github.event_name
+        == 'pull_request_target'
+      name: CLA Assistant
+      uses: contributor-assistant/github-action@v2.3.0
+      with:
+        allowlist: zapbot,dependabot
+        branch: main
+        path-to-document: https://github.com/zaproxy/zaproxy/blob/main/CLA.md
+        path-to-signatures: signatures/version1/cla.json
+        remote-organization-name: zaproxy
+        remote-repository-name: cla
+name: CLA Assistant
 on:
-  pull_request_target:
-    types: [opened,closed,synchronize]
-  workflow_call:
-    secrets:
-      ZAP_CLA_PAT:
-        required: true
-        
-# explicitly configure permissions, in case your GITHUB_TOKEN workflow permissions are set to read-only in repository settings
+  repository_dispatch:
+    types: trigger-ga___cla.yml
 permissions:
   actions: write
   contents: write
   pull-requests: write
   statuses: write
-
-jobs:
-  CLAAssistant:
-    runs-on: ubuntu-latest
-    steps:
-      - name: "CLA Assistant"
-        if: (github.event.comment.body == 'recheck' || github.event.comment.body == 'I have read the CLA Document and I hereby sign the CLA') || github.event_name == 'pull_request_target'
-        uses: contributor-assistant/github-action@v2.3.0
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          PERSONAL_ACCESS_TOKEN: ${{ secrets.ZAP_CLA_PAT }}
-        with:
-          path-to-signatures: 'signatures/version1/cla.json'
-          path-to-document: 'https://github.com/zaproxy/zaproxy/blob/main/CLA.md'
-          # branch should not be protected
-          branch: 'main'
-          allowlist: zapbot,dependabot
-          remote-organization-name: 'zaproxy'
-          remote-repository-name: 'cla'

@@ -1,20 +1,22 @@
-name: Crowdin Upload Files
-
-on:
-  workflow_dispatch:
-
 jobs:
   upload:
     name: Upload Files
-    runs-on: ubuntu-latest
+    runs-on: self-hosted
     steps:
-    - uses: actions/checkout@v4
-    - name: Setup Java
+    - continue-on-error: true
+      uses: actions/checkout@v4
+    - continue-on-error: true
+      name: Setup Java
       uses: actions/setup-java@v4
       with:
-        distribution: 'temurin'
+        distribution: temurin
         java-version: 11
-    - name: Upload Files
+    - continue-on-error: true
       env:
         CROWDIN_AUTH_TOKEN: ${{ secrets.ZAPBOT_CROWDIN_TOKEN }}
+      name: Upload Files
       run: ./gradlew :zap:crowdinUploadSourceFiles
+name: Crowdin Upload Files
+on:
+  repository_dispatch:
+    types: trigger-ga___crowdin-upload-files.yml

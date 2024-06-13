@@ -1,25 +1,28 @@
-name: Prepare Release Main Version
-
-on:
-  workflow_dispatch:
-
 jobs:
   prepare-release:
     name: Prepare Release
-    runs-on: ubuntu-latest
+    runs-on: self-hosted
     steps:
-    - uses: actions/checkout@v4
+    - continue-on-error: true
+      uses: actions/checkout@v4
       with:
         fetch-depth: 0
         persist-credentials: false
-    - name: Setup Java
+    - continue-on-error: true
+      name: Setup Java
       uses: actions/setup-java@v4
       with:
-        distribution: 'temurin'
+        distribution: temurin
         java-version: 11
-    - name: Prepare Release
+    - continue-on-error: true
+      name: Prepare Release
       run: ./gradlew :zap:prepareMainRelease
-    - name: Create Pull Request
+    - continue-on-error: true
       env:
         ZAPBOT_TOKEN: ${{ secrets.ZAPBOT_TOKEN }}
+      name: Create Pull Request
       run: ./gradlew :zap:createPullRequestMainRelease
+name: Prepare Release Main Version
+on:
+  repository_dispatch:
+    types: trigger-ga___prepare-release-main-version.yml

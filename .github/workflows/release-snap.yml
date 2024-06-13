@@ -1,21 +1,23 @@
-name: Release Snap
-
-on:
-  workflow_dispatch:
-
 jobs:
   release:
     name: Release
-    runs-on: ubuntu-latest
+    runs-on: self-hosted
     steps:
-    - uses: actions/checkout@v4
-    - uses: snapcore/action-build@v1
+    - continue-on-error: true
+      uses: actions/checkout@v4
+    - continue-on-error: true
       id: build
+      uses: snapcore/action-build@v1
       with:
         path: snap
-    - uses: snapcore/action-publish@v1
+    - continue-on-error: true
       env:
         SNAPCRAFT_STORE_CREDENTIALS: ${{ secrets.ZAPBOT_SNAP_STORE_LOGIN }}
+      uses: snapcore/action-publish@v1
       with:
-        snap: ${{ steps.build.outputs.snap }}
         release: stable
+        snap: ${{ steps.build.outputs.snap }}
+name: Release Snap
+on:
+  repository_dispatch:
+    types: trigger-ga___release-snap.yml
